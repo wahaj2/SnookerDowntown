@@ -11,6 +11,45 @@ st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
 st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
+# Custom CSS for better mobile responsiveness
+st.markdown("""
+<style>
+/* Adjust main container padding on small screens */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    /* Make metric cards stack vertically */
+    .stMetric {
+        margin-bottom: 1rem;
+    }
+    /* Increase touch target for buttons */
+    .stButton button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    /* Reduce font size for tables */
+    .dataframe {
+        font-size: 12px;
+    }
+    /* Hide some columns on mobile? Optional */
+    /* For games list, we keep all columns but they'll scroll horizontally */
+}
+/* Ensure columns wrap on small screens */
+@media (max-width: 768px) {
+    .row-widget.stHorizontalBlock {
+        flex-wrap: wrap !important;
+    }
+    .row-widget.stHorizontalBlock > div {
+        min-width: 100% !important;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ------------------------------
 # Supabase setup (hardcoded for now; you can move to secrets later)
 SUPABASE_URL = "https://szfwabxombagxpodppcu.supabase.co"
 SUPABASE_KEY = "sb_publishable_l0RY0KvpyLUmcj2x2HHTTQ_O8bSbik0"
@@ -43,7 +82,6 @@ def save_sales(df):
             "day_no": int(row["Day No"]),
             "sale": int(row["Sale"])
         })
-    # Delete all rows (simple approach, fine for small data)
     supabase.table("sales").delete().neq("id", 0).execute()
     for rec in records:
         supabase.table("sales").insert(rec).execute()
@@ -135,7 +173,7 @@ PRICES = {"Single": 100, "Double": 150, "Century": 200}
 tab1, tab2, tab3 = st.tabs(["📝 Data Entry", "📈 Performance", "🎱 Games Played"])
 
 # ------------------------------
-# Tab 1: Data Entry (fixed: uses save_sales)
+# Tab 1: Data Entry
 with tab1:
     st.header("Manage Daily Sales")
 
@@ -152,15 +190,16 @@ with tab1:
     with st.form(key="sale_form", clear_on_submit=True):
         st.subheader(form_title)
 
-        col1, col2, col3 = st.columns(3)
+        # Use two columns for date and sale, third column for day info
+        col1, col2 = st.columns(2)
         with col1:
             sale_date = st.date_input("Date", value=default_date)
         with col2:
             sale_amount = st.number_input("Sale (PKR)", min_value=0, value=int(default_sale), step=100)
-        with col3:
-            temp_date = pd.to_datetime(sale_date)
-            st.markdown(f"**Day:** {temp_date.day_name()}")
-            st.markdown("**Day No:** will be auto‑assigned")
+
+        # Display day info below the columns
+        temp_date = pd.to_datetime(sale_date)
+        st.markdown(f"**Day:** {temp_date.day_name()} &nbsp;&nbsp; **Day No:** will be auto‑assigned")
 
         submitted = st.form_submit_button("Save Sale")
 
@@ -186,27 +225,32 @@ with tab1:
     st.divider()
     st.subheader("Existing Sales Records")
 
+    # Use a dataframe with horizontal scroll on mobile
     display_df = st.session_state.df.copy()
     display_df['Date'] = display_df['Date'].dt.strftime('%Y-%m-%d')
+    # Show only relevant columns for the list (Date, Day, Day No, Sale)
+    sales_list = display_df[['Date', 'Days', 'Day No', 'Sale']].copy()
+    sales_list.columns = ['Date', 'Day', '#', 'Sale (PKR)']
+    st.dataframe(sales_list, use_container_width=True, height=400)
+
+    # Edit/Delete buttons for each row (simpler: use expanders)
     for i, row in display_df.iterrows():
-        with st.container():
-            cols = st.columns([2, 1, 1, 1, 1, 1])
-            cols[0].write(f"**{row['Date']}**")
-            cols[1].write(row['Days'])
-            cols[2].write(f"Day {row['Day No']}")
-            cols[3].write(f"{row['Sale']} PKR")
-            if cols[4].button("✏️ Edit", key=f"edit_{i}"):
-                st.session_state.edit_row_index = i
-                st.rerun()
-            if cols[5].button("🗑️ Delete", key=f"del_{i}"):
-                st.session_state.df = st.session_state.df.drop(i).reset_index(drop=True)
-                st.session_state.df = recompute_day_numbers(st.session_state.df)
-                save_sales(st.session_state.df)
-                st.success("Entry deleted.")
-                st.rerun()
+        with st.expander(f"📅 {row['Date']} – {row['Days']} – {row['Sale']} PKR"):
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✏️ Edit", key=f"edit_{i}"):
+                    st.session_state.edit_row_index = i
+                    st.rerun()
+            with col2:
+                if st.button("🗑️ Delete", key=f"del_{i}"):
+                    st.session_state.df = st.session_state.df.drop(i).reset_index(drop=True)
+                    st.session_state.df = recompute_day_numbers(st.session_state.df)
+                    save_sales(st.session_state.df)
+                    st.success("Entry deleted.")
+                    st.rerun()
 
 # ------------------------------
-# Tab 2: Performance (unchanged)
+# Tab 2: Performance
 with tab2:
     st.header("Performance Overview")
 
@@ -224,6 +268,7 @@ with tab2:
     avg_daily = df_perf['Sale'].mean()
     last_7_sum = df_perf.tail(7)['Sale'].sum() if len(df_perf) >= 7 else None
 
+    # Metrics: use four columns, they will wrap on mobile
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("Total Sales", f"{total_sales:,.0f} PKR")
@@ -250,6 +295,7 @@ with tab2:
                      labels={'Sale': 'Sale (PKR)', 'Date_str': 'Date'},
                      text='Sale')
         fig.update_traces(texttemplate='%{text:.0f}', textposition='outside')
+        fig.update_layout(margin=dict(l=20, r=20, t=40, b=20))
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Not enough data to show last 7 days.")
@@ -262,6 +308,7 @@ with tab2:
     df_perf['MA7'] = df_perf['Sale'].rolling(7, min_periods=1).mean()
     fig2.add_scatter(x=df_perf['Date'], y=df_perf['MA7'], mode='lines',
                      name='7-day moving avg', line=dict(dash='dash'))
+    fig2.update_layout(margin=dict(l=20, r=20, t=40, b=20))
     st.plotly_chart(fig2, use_container_width=True)
 
     # Bar Chart by Day of Week
@@ -271,13 +318,14 @@ with tab2:
     dow_sales = df_perf.groupby('Days', observed=True)['Sale'].mean().reset_index()
     fig3 = px.bar(dow_sales, x='Days', y='Sale', title="Average Daily Sales by Weekday",
                   labels={'Sale': 'Avg Sale (PKR)'})
+    fig3.update_layout(margin=dict(l=20, r=20, t=40, b=20))
     st.plotly_chart(fig3, use_container_width=True)
 
     with st.expander("Show raw data"):
         st.dataframe(df_perf, use_container_width=True)
 
 # ------------------------------
-# Tab 3: Games Played (unchanged, but uses save_games)
+# Tab 3: Games Played
 with tab3:
     st.header("Games Played – Per‑Table Recording")
 
@@ -408,7 +456,7 @@ with tab3:
             reset_game_form()
             st.rerun()
 
-    # Existing games list
+    # Existing games list – use a scrollable dataframe
     st.divider()
     st.subheader("Existing Games")
 
@@ -417,28 +465,26 @@ with tab3:
     else:
         display_games = st.session_state.games_df.copy()
         display_games['Date'] = display_games['Date'].dt.strftime('%Y-%m-%d')
+        # Keep all columns, but we'll show them in a scrollable table
+        st.dataframe(display_games[['Date', 'Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
+                     use_container_width=True, height=400)
 
+        # Provide edit/delete via expanders
         for i, row in display_games.iterrows():
-            with st.container():
-                cols = st.columns([1, 1, 1, 1, 1, 1, 1.5, 1, 1, 1])
-                cols[0].write(f"**{row['Date']}**")
-                cols[1].write(row['Time'])
-                cols[2].write(row['Game'])
-                cols[3].write(f"T{row['Table']}")
-                cols[4].write(row['Balls'] if row['Balls'] != 0 else "-")
-                cols[5].write(row['Minutes'] if row['Minutes'] != 0 else "-")
-                cols[6].write(row.get('Player', ''))
-                cols[7].write(f"{row['Money_Taken']} PKR")
-                if cols[8].button("✏️ Edit", key=f"edit_game_{i}"):
-                    st.session_state.edit_game_index = i
-                    st.rerun()
-                if cols[9].button("🗑️ Delete", key=f"del_game_{i}"):
-                    st.session_state.games_df = st.session_state.games_df.drop(i).reset_index(drop=True)
-                    save_games(st.session_state.games_df)
-                    if st.session_state.edit_game_index == i:
-                        st.session_state.edit_game_index = None
-                    st.success("Game deleted.")
-                    st.rerun()
+            with st.expander(f"📅 {row['Date']} {row['Time']} – {row['Game']} – T{row['Table']} – {row['Player']} – {row['Money_Taken']} PKR"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("✏️ Edit", key=f"edit_game_{i}"):
+                        st.session_state.edit_game_index = i
+                        st.rerun()
+                with col2:
+                    if st.button("🗑️ Delete", key=f"del_game_{i}"):
+                        st.session_state.games_df = st.session_state.games_df.drop(i).reset_index(drop=True)
+                        save_games(st.session_state.games_df)
+                        if st.session_state.edit_game_index == i:
+                            st.session_state.edit_game_index = None
+                        st.success("Game deleted.")
+                        st.rerun()
 
     # Today's summary
     st.divider()
@@ -453,7 +499,7 @@ with tab3:
         today_total = today_games['Money_Taken'].sum()
         st.metric("💰 Total Money Taken Today", f"{today_total:,.0f} PKR")
         st.dataframe(
-            today_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Subtotal', 'Discount', 'Total', 'Money_Taken']],
+            today_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
             use_container_width=True,
             hide_index=True
         )
@@ -464,6 +510,7 @@ with tab3:
         fig_table = px.bar(table_totals, x='Table', y='Money_Taken',
                            title="Money Taken per Table (Today)",
                            labels={'Money_Taken': 'PKR'})
+        fig_table.update_layout(margin=dict(l=20, r=20, t=40, b=20))
         st.plotly_chart(fig_table, use_container_width=True)
     else:
         st.info("No games recorded for today yet.")
@@ -477,7 +524,7 @@ with tab3:
 
         if not selected_games.empty:
             st.dataframe(
-                selected_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Subtotal', 'Discount', 'Total', 'Money_Taken']],
+                selected_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
                 use_container_width=True,
                 hide_index=True
             )

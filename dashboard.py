@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime, timedelta
-import os
+from datetime import datetime
 import pytz
+from supabase import create_client
 
 # ------------------------------
 # Page configuration
@@ -11,27 +11,47 @@ st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
 st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
-# Constants
-CSV_FILE = "Snooker Downtown.csv"
-GAMES_FILE = "games.csv"
-
-# Game types (used for dropdown)
-PRICES = {
-    "Single": 100,
-    "Double": 150,
-    "Century": 200
-}
+# Supabase setup (secrets must be set in Streamlit Cloud)
+SUPABASE_URL = st.secrets["https://szfwabxombagxpodppcu.supabase.co"]
+SUPABASE_KEY = st.secrets["sb_publishable_l0RY0KvpyLUmcj2x2HHTTQ_O8bSbik0"]
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ------------------------------
-# Helper functions for sales
-@st.cache_data
-def load_data(filepath):
-    df = pd.read_csv(filepath, parse_dates=['Date'])
-    df = df.sort_values('Date').reset_index(drop=True)
+# Helper: get current time in Islamabad
+def get_current_time_pk():
+    tz = pytz.timezone('Asia/Karachi')
+    return datetime.now(tz).time()
+
+# ------------------------------
+# Sales functions
+def load_sales():
+    response = supabase.table("sales").select("*").order("date", desc=False).execute()
+    data = response.data
+    if not data:
+        return pd.DataFrame(columns=["id", "date", "days", "day_no", "sale"])
+    df = pd.DataFrame(data)
+    # rename columns to match our internal names (database uses snake_case)
+    df.rename(columns={"date": "Date", "days": "Days", "day_no": "Day No", "sale": "Sale"}, inplace=True)
+    df['Date'] = pd.to_datetime(df['Date'])
     return df
 
-def save_data(df, filepath):
-    df.to_csv(filepath, index=False)
+def save_sales(df):
+    # Convert DataFrame to list of dicts for upsert
+    records = []
+    for _, row in df.iterrows():
+        records.append({
+            "id": row.get("id", None),   # None for new rows
+            "date": row["Date"].strftime("%Y-%m-%d"),
+            "days": row["Days"],
+            "day_no": row["Day No"],
+            "sale": row["Sale"]
+        })
+    # Upsert: if id exists, update; else insert
+    # We'll do a simple delete+insert to avoid conflicts (or use upsert)
+    # For simplicity, we'll delete all and re-insert (small data)
+    supabase.table("sales").delete().neq("id", 0).execute()
+    for rec in records:
+        supabase.table("sales").insert(rec).execute()
 
 def recompute_day_numbers(df):
     df = df.sort_values('Date').reset_index(drop=True)
@@ -50,44 +70,74 @@ def week_over_week_change(df):
     return ((last_7 - prev_7) / prev_7) * 100
 
 # ------------------------------
-# Helper functions for games
+# Games functions
 def load_games():
-    if os.path.exists(GAMES_FILE):
-        df = pd.read_csv(GAMES_FILE, parse_dates=['Date'])
-        return df
-    else:
+    response = supabase.table("games").select("*").order("date", desc=False).execute()
+    data = response.data
+    if not data:
         return pd.DataFrame(columns=[
-            'Date', 'Time', 'Game', 'Table', 'Balls', 'Minutes',
-            'Player', 'Subtotal', 'Discount', 'Total', 'Money_Taken'
+            'id', 'date', 'time', 'game', 'table', 'balls', 'minutes',
+            'player', 'subtotal', 'discount', 'total', 'money_taken'
         ])
+    df = pd.DataFrame(data)
+    # rename columns to match our internal names (capitalised)
+    df.rename(columns={
+        "date": "Date",
+        "time": "Time",
+        "game": "Game",
+        "table": "Table",
+        "balls": "Balls",
+        "minutes": "Minutes",
+        "player": "Player",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "total": "Total",
+        "money_taken": "Money_Taken"
+    }, inplace=True)
+    df['Date'] = pd.to_datetime(df['Date'])
+    return df
 
 def save_games(df):
-    df.to_csv(GAMES_FILE, index=False)
-
-def get_current_time_pk():
-    tz = pytz.timezone('Asia/Karachi')
-    return datetime.now(tz).time()
+    # Convert to list of dicts
+    records = []
+    for _, row in df.iterrows():
+        records.append({
+            "id": row.get("id", None),
+            "date": row["Date"].strftime("%Y-%m-%d"),
+            "time": row["Time"],
+            "game": row["Game"],
+            "table": row["Table"],
+            "balls": row["Balls"],
+            "minutes": row["Minutes"],
+            "player": row["Player"],
+            "subtotal": row["Subtotal"],
+            "discount": row["Discount"],
+            "total": row["Total"],
+            "money_taken": row["Money_Taken"]
+        })
+    # Delete all and re-insert (again, simple for small data)
+    supabase.table("games").delete().neq("id", 0).execute()
+    for rec in records:
+        supabase.table("games").insert(rec).execute()
 
 # ------------------------------
-# Load sales data
+# Load initial data into session state
 if 'df' not in st.session_state:
-    if os.path.exists(CSV_FILE):
-        st.session_state.df = load_data(CSV_FILE)
-        st.session_state.df = recompute_day_numbers(st.session_state.df)
-    else:
-        st.error(f"File {CSV_FILE} not found. Please make sure it's in the same directory.")
-        st.stop()
+    st.session_state.df = load_sales()
+    st.session_state.df = recompute_day_numbers(st.session_state.df)
 
 if 'edit_row_index' not in st.session_state:
     st.session_state.edit_row_index = None
 
-# ------------------------------
-# Load games data
 if 'games_df' not in st.session_state:
     st.session_state.games_df = load_games()
 
 if 'edit_game_index' not in st.session_state:
     st.session_state.edit_game_index = None
+
+# ------------------------------
+# Game type pricing (used for dropdown)
+PRICES = {"Single": 100, "Double": 150, "Century": 200}
 
 # ------------------------------
 # Tabs

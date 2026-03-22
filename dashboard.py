@@ -12,8 +12,8 @@ st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
 # Supabase setup (secrets must be set in Streamlit Cloud)
-SUPABASE_URL = st.secrets["https://szfwabxombagxpodppcu.supabase.co"]
-SUPABASE_KEY = st.secrets["sb_publishable_l0RY0KvpyLUmcj2x2HHTTQ_O8bSbik0"]
+SUPABASE_URL = "https://szfwabxombagxpodppcu.supabase.co"
+SUPABASE_KEY = "sb_publishable_l0RY0KvpyLUmcj2x2HHTTQ_O8bSbik0"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ------------------------------

@@ -11,7 +11,7 @@ st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
 st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
-# Supabase setup (secrets must be set in Streamlit Cloud)
+# Supabase setup (hardcoded for now; you can move to secrets later)
 SUPABASE_URL = "https://szfwabxombagxpodppcu.supabase.co"
 SUPABASE_KEY = "sb_publishable_l0RY0KvpyLUmcj2x2HHTTQ_O8bSbik0"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -30,25 +30,21 @@ def load_sales():
     if not data:
         return pd.DataFrame(columns=["id", "date", "days", "day_no", "sale"])
     df = pd.DataFrame(data)
-    # rename columns to match our internal names (database uses snake_case)
     df.rename(columns={"date": "Date", "days": "Days", "day_no": "Day No", "sale": "Sale"}, inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
     return df
 
 def save_sales(df):
-    # Convert DataFrame to list of dicts for upsert
     records = []
     for _, row in df.iterrows():
         records.append({
-            "id": row.get("id", None),   # None for new rows
+            "id": row.get("id", None),
             "date": row["Date"].strftime("%Y-%m-%d"),
             "days": row["Days"],
             "day_no": row["Day No"],
             "sale": row["Sale"]
         })
-    # Upsert: if id exists, update; else insert
-    # We'll do a simple delete+insert to avoid conflicts (or use upsert)
-    # For simplicity, we'll delete all and re-insert (small data)
+    # Simple delete all + insert (fine for small data)
     supabase.table("sales").delete().neq("id", 0).execute()
     for rec in records:
         supabase.table("sales").insert(rec).execute()
@@ -80,7 +76,6 @@ def load_games():
             'player', 'subtotal', 'discount', 'total', 'money_taken'
         ])
     df = pd.DataFrame(data)
-    # rename columns to match our internal names (capitalised)
     df.rename(columns={
         "date": "Date",
         "time": "Time",
@@ -98,7 +93,6 @@ def load_games():
     return df
 
 def save_games(df):
-    # Convert to list of dicts
     records = []
     for _, row in df.iterrows():
         records.append({
@@ -115,7 +109,6 @@ def save_games(df):
             "total": row["Total"],
             "money_taken": row["Money_Taken"]
         })
-    # Delete all and re-insert (again, simple for small data)
     supabase.table("games").delete().neq("id", 0).execute()
     for rec in records:
         supabase.table("games").insert(rec).execute()
@@ -144,11 +137,10 @@ PRICES = {"Single": 100, "Double": 150, "Century": 200}
 tab1, tab2, tab3 = st.tabs(["📝 Data Entry", "📈 Performance", "🎱 Games Played"])
 
 # ------------------------------
-# Tab 1: Data Entry (same as before)
+# Tab 1: Data Entry (fixed: uses save_sales)
 with tab1:
     st.header("Manage Daily Sales")
 
-    # Add / Edit Form
     if st.session_state.edit_row_index is not None:
         row = st.session_state.df.loc[st.session_state.edit_row_index]
         default_date = row['Date']
@@ -189,7 +181,7 @@ with tab1:
                 st.success("Sale added!")
 
             st.session_state.df = recompute_day_numbers(st.session_state.df)
-            save_data(st.session_state.df, CSV_FILE)
+            save_sales(st.session_state.df)
             st.rerun()
 
     # List of Existing Entries
@@ -211,12 +203,12 @@ with tab1:
             if cols[5].button("🗑️ Delete", key=f"del_{i}"):
                 st.session_state.df = st.session_state.df.drop(i).reset_index(drop=True)
                 st.session_state.df = recompute_day_numbers(st.session_state.df)
-                save_data(st.session_state.df, CSV_FILE)
+                save_sales(st.session_state.df)
                 st.success("Entry deleted.")
                 st.rerun()
 
 # ------------------------------
-# Tab 2: Performance
+# Tab 2: Performance (unchanged)
 with tab2:
     st.header("Performance Overview")
 
@@ -287,14 +279,9 @@ with tab2:
         st.dataframe(df_perf, use_container_width=True)
 
 # ------------------------------
-# Tab 3: Games Played (fixed)
+# Tab 3: Games Played (unchanged, but uses save_games)
 with tab3:
     st.header("Games Played – Per‑Table Recording")
-
-    # Helper to get current Islamabad time
-    def get_current_time_pk():
-        tz = pytz.timezone('Asia/Karachi')
-        return datetime.now(tz).time()
 
     # Reset form function
     def reset_game_form():
@@ -331,15 +318,15 @@ with tab3:
     if 'edit_game_index' not in st.session_state:
         st.session_state.edit_game_index = None
 
-    # If editing, load the row data into session state (convert any numpy ints to Python int)
+    # If editing, load the row data
     if st.session_state.edit_game_index is not None:
         row = st.session_state.games_df.loc[st.session_state.edit_game_index]
         st.session_state.game_date = row['Date'].date()
         st.session_state.game_time = datetime.strptime(row['Time'], "%H:%M").time()
         st.session_state.game_type = row['Game']
-        st.session_state.table_num = int(row['Table'])   # convert to Python int
-        st.session_state.balls = int(row['Balls'])       # convert
-        st.session_state.minutes = int(row['Minutes'])   # convert
+        st.session_state.table_num = int(row['Table'])
+        st.session_state.balls = int(row['Balls'])
+        st.session_state.minutes = int(row['Minutes'])
         st.session_state.player_name = row.get('Player', '')
         st.session_state.discount = int(row['Discount']) if pd.notna(row['Discount']) else 0
         st.session_state.money_taken = int(row['Money_Taken']) if pd.notna(row['Money_Taken']) else 0
@@ -354,7 +341,7 @@ with tab3:
             multiplier = 2 if st.session_state.game_type == "Double" else 1
             return base * multiplier
 
-    # --- Form for adding/editing a game ---
+    # Form for adding/editing
     with st.form("game_form"):
         if st.session_state.edit_game_index is not None:
             st.subheader(f"✏️ Edit Game (ID {st.session_state.edit_game_index})")
@@ -396,7 +383,6 @@ with tab3:
         submitted = st.form_submit_button("Save Game")
 
         if submitted:
-            # Build the new row
             new_row = {
                 'Date': pd.to_datetime(st.session_state.game_date),
                 'Time': st.session_state.game_time.strftime("%H:%M"),
@@ -420,12 +406,11 @@ with tab3:
                 st.session_state.games_df = pd.concat([st.session_state.games_df, new_df], ignore_index=True)
                 st.success("Game recorded!")
 
-            # Save to CSV and reset the form
             save_games(st.session_state.games_df)
             reset_game_form()
             st.rerun()
 
-    # --- List of existing games (with edit/delete) ---
+    # Existing games list
     st.divider()
     st.subheader("Existing Games")
 
@@ -457,7 +442,7 @@ with tab3:
                     st.success("Game deleted.")
                     st.rerun()
 
-    # --- Today's summary ---
+    # Today's summary
     st.divider()
     st.subheader("Today's Summary")
 
@@ -485,7 +470,7 @@ with tab3:
     else:
         st.info("No games recorded for today yet.")
 
-    # --- View other days ---
+    # View other days
     with st.expander("View games from another day"):
         selected_date = st.date_input("Select date to view", value=today)
         selected_games = st.session_state.games_df[

@@ -38,13 +38,12 @@ def save_sales(df):
     records = []
     for _, row in df.iterrows():
         records.append({
-            "id": row.get("id", None),
             "date": row["Date"].strftime("%Y-%m-%d"),
             "days": row["Days"],
-            "day_no": row["Day No"],
-            "sale": row["Sale"]
+            "day_no": int(row["Day No"]),
+            "sale": int(row["Sale"])
         })
-    # Simple delete all + insert (fine for small data)
+    # Delete all rows (simple approach, fine for small data)
     supabase.table("sales").delete().neq("id", 0).execute()
     for rec in records:
         supabase.table("sales").insert(rec).execute()
@@ -96,18 +95,17 @@ def save_games(df):
     records = []
     for _, row in df.iterrows():
         records.append({
-            "id": row.get("id", None),
             "date": row["Date"].strftime("%Y-%m-%d"),
             "time": row["Time"],
             "game": row["Game"],
-            "table": row["Table"],
-            "balls": row["Balls"],
-            "minutes": row["Minutes"],
+            "table": int(row["Table"]),
+            "balls": int(row["Balls"]),
+            "minutes": int(row["Minutes"]),
             "player": row["Player"],
-            "subtotal": row["Subtotal"],
-            "discount": row["Discount"],
-            "total": row["Total"],
-            "money_taken": row["Money_Taken"]
+            "subtotal": int(row["Subtotal"]),
+            "discount": int(row["Discount"]),
+            "total": int(row["Total"]),
+            "money_taken": int(row["Money_Taken"])
         })
     supabase.table("games").delete().neq("id", 0).execute()
     for rec in records:

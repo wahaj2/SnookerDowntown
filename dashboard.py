@@ -11,103 +11,172 @@ st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
 st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
+# Custom CSS for modern professional theme
 st.markdown("""
 <style>
-
-/* -------- Global Theme -------- */
-html, body, [class*="css"]  {
-    font-family: 'Inter', sans-serif;
-}
-
-/* Background Gradient */
-.stApp {
-    background: linear-gradient(135deg, #0f172a, #020617);
-    color: #e2e8f0;
-}
-
-/* Main container */
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-}
-
-/* -------- Titles -------- */
-h1, h2, h3 {
-    color: #f8fafc;
-    font-weight: 600;
-}
-
-/* -------- Cards (metrics & sections) -------- */
-[data-testid="stMetric"] {
-    background: rgba(15, 23, 42, 0.7);
-    padding: 20px;
-    border-radius: 14px;
-    border: 1px solid rgba(148, 163, 184, 0.1);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-
-/* -------- Buttons -------- */
-.stButton button {
-    background: linear-gradient(135deg, #16a34a, #22c55e);
-    color: white;
-    border-radius: 10px;
-    border: none;
-    padding: 10px 18px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.stButton button:hover {
-    background: linear-gradient(135deg, #15803d, #16a34a);
-    
-}
-
-/* -------- Inputs -------- */
-.stTextInput input, .stNumberInput input, .stDateInput input {
-    background-color: #020617;
-    color: #e2e8f0;
-    border-radius: 8px;
-    border: 1px solid #1e293b;
-}
-
-/* -------- Dataframes -------- */
-[data-testid="stDataFrame"] {
-    background-color: #020617;
-    border-radius: 10px;
-    border: 1px solid #1e293b;
-}
-
-/* -------- Tabs -------- */
-.stTabs [role="tab"] {
-    font-weight: 500;
-    color: #94a3b8;
-}
-
-.stTabs [aria-selected="true"] {
-    color: #22c55e;
-    border-bottom: 2px solid #22c55e;
-}
-
-/* -------- Expanders -------- */
-.streamlit-expanderHeader {
-    font-size: 15px;
-    font-weight: 500;
-    color: #e2e8f0;
-}
-
-/* -------- Mobile Improvements -------- */
-@media (max-width: 768px) {
-    .block-container {
-        padding-left: 1rem;
-        padding-right: 1rem;
+    /* Global styles */
+    .main {
+        background-color: #f8f9fa;
     }
-}
-
+    
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    /* Metric cards */
+    .stMetric {
+        background-color: white;
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e9ecef;
+    }
+    .stMetric:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    }
+    .stMetric label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .stMetric .stMetricValue {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e2f;
+    }
+    
+    /* Buttons */
+    .stButton button {
+        background-color: #2c5e2e;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: background-color 0.2s, transform 0.1s;
+        width: 100%;
+    }
+    .stButton button:hover {
+        background-color: #1f4521;
+        border: none;
+        transform: scale(1.02);
+    }
+    .stButton button:active {
+        transform: scale(0.98);
+    }
+    
+    /* Expander headers */
+    .streamlit-expanderHeader {
+        background-color: white;
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    .streamlit-expanderHeader:hover {
+        background-color: #f1f5f9;
+    }
+    
+    /* Dataframes */
+    .dataframe {
+        font-size: 0.875rem;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+    .dataframe th {
+        background-color: #f1f5f9;
+        color: #1e293b;
+        font-weight: 600;
+        padding: 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .dataframe td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .dataframe tr:hover {
+        background-color: #f8fafc;
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
+        background-color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        color: #6c757d;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #2c5e2e;
+        color: white;
+    }
+    
+    /* Forms */
+    .stForm {
+        background-color: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+        margin-bottom: 1.5rem;
+    }
+    .stForm [data-baseweb="input"], .stForm [data-baseweb="select"], .stForm [data-baseweb="textarea"] {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    /* Dividers */
+    hr {
+        margin: 2rem 0;
+        border: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    }
+    
+    /* Info/Warning boxes */
+    .stAlert {
+        border-radius: 12px;
+        border-left-width: 4px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main .block-container {
+            padding: 1rem;
+        }
+        .stMetric {
+            margin-bottom: 1rem;
+        }
+        .stTabs [data-baseweb="tab-list"] {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .stButton button {
+            min-width: 44px;
+            min-height: 44px;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # ------------------------------
-# Supabase setup (hardcoded for now; you can move to secrets later)
+# Supabase setup
 SUPABASE_URL = "https://szfwabxombagxpodppcu.supabase.co"
 SUPABASE_KEY = "sb_publishable_l0RY0KvpyLUmcj2x2HHTTQ_O8bSbik0"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -222,7 +291,7 @@ if 'edit_game_index' not in st.session_state:
     st.session_state.edit_game_index = None
 
 # ------------------------------
-# Game type pricing (used for dropdown)
+# Game type pricing
 PRICES = {"Single": 100, "Double": 150, "Century": 200}
 
 # ------------------------------
@@ -247,14 +316,12 @@ with tab1:
     with st.form(key="sale_form", clear_on_submit=True):
         st.subheader(form_title)
 
-        # Use two columns for date and sale, third column for day info
         col1, col2 = st.columns(2)
         with col1:
             sale_date = st.date_input("Date", value=default_date)
         with col2:
             sale_amount = st.number_input("Sale (PKR)", min_value=0, value=int(default_sale), step=100)
 
-        # Display day info below the columns
         temp_date = pd.to_datetime(sale_date)
         st.markdown(f"**Day:** {temp_date.day_name()} &nbsp;&nbsp; **Day No:** will be auto‑assigned")
 
@@ -278,19 +345,15 @@ with tab1:
             save_sales(st.session_state.df)
             st.rerun()
 
-    # List of Existing Entries
     st.divider()
     st.subheader("Existing Sales Records")
 
-    # Use a dataframe with horizontal scroll on mobile
     display_df = st.session_state.df.copy()
     display_df['Date'] = display_df['Date'].dt.strftime('%Y-%m-%d')
-    # Show only relevant columns for the list (Date, Day, Day No, Sale)
     sales_list = display_df[['Date', 'Days', 'Day No', 'Sale']].copy()
     sales_list.columns = ['Date', 'Day', '#', 'Sale (PKR)']
     st.dataframe(sales_list, use_container_width=True, height=400)
 
-    # Edit/Delete buttons for each row (simpler: use expanders)
     for i, row in display_df.iterrows():
         with st.expander(f"📅 {row['Date']} – {row['Days']} – {row['Sale']} PKR"):
             col1, col2 = st.columns(2)
@@ -325,7 +388,6 @@ with tab2:
     avg_daily = df_perf['Sale'].mean()
     last_7_sum = df_perf.tail(7)['Sale'].sum() if len(df_perf) >= 7 else None
 
-    # Metrics: use four columns, they will wrap on mobile
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("Total Sales", f"{total_sales:,.0f} PKR")
@@ -342,7 +404,6 @@ with tab2:
         else:
             st.metric("Week/Week Change", "Need ≥14 days")
 
-    # Last 7 Days Bar Chart
     st.subheader("Last 7 Days Sales")
     if len(df_perf) >= 7:
         last_week_df = df_perf.tail(7).copy()
@@ -352,12 +413,14 @@ with tab2:
                      labels={'Sale': 'Sale (PKR)', 'Date_str': 'Date'},
                      text='Sale')
         fig.update_traces(texttemplate='%{text:.0f}', textposition='outside')
-        fig.update_layout(margin=dict(l=20, r=20, t=40, b=20))
+        fig.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                          plot_bgcolor='rgba(0,0,0,0)',
+                          paper_bgcolor='rgba(0,0,0,0)',
+                          font=dict(color='#1e293b'))
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Not enough data to show last 7 days.")
 
-    # Full Trend Chart
     st.subheader("Daily Sales Trend (All Data)")
     fig2 = px.line(df_perf, x='Date', y='Sale', markers=True,
                    title="Sales Over Time",
@@ -365,17 +428,22 @@ with tab2:
     df_perf['MA7'] = df_perf['Sale'].rolling(7, min_periods=1).mean()
     fig2.add_scatter(x=df_perf['Date'], y=df_perf['MA7'], mode='lines',
                      name='7-day moving avg', line=dict(dash='dash'))
-    fig2.update_layout(margin=dict(l=20, r=20, t=40, b=20))
+    fig2.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                       plot_bgcolor='rgba(0,0,0,0)',
+                       paper_bgcolor='rgba(0,0,0,0)',
+                       font=dict(color='#1e293b'))
     st.plotly_chart(fig2, use_container_width=True)
 
-    # Bar Chart by Day of Week
     st.subheader("Average Sales by Day of Week")
     dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     df_perf['Days'] = pd.Categorical(df_perf['Days'], categories=dow_order, ordered=True)
     dow_sales = df_perf.groupby('Days', observed=True)['Sale'].mean().reset_index()
     fig3 = px.bar(dow_sales, x='Days', y='Sale', title="Average Daily Sales by Weekday",
                   labels={'Sale': 'Avg Sale (PKR)'})
-    fig3.update_layout(margin=dict(l=20, r=20, t=40, b=20))
+    fig3.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                       plot_bgcolor='rgba(0,0,0,0)',
+                       paper_bgcolor='rgba(0,0,0,0)',
+                       font=dict(color='#1e293b'))
     st.plotly_chart(fig3, use_container_width=True)
 
     with st.expander("Show raw data"):
@@ -386,7 +454,6 @@ with tab2:
 with tab3:
     st.header("Games Played – Per‑Table Recording")
 
-    # Reset form function
     def reset_game_form():
         st.session_state.game_date = datetime.today().date()
         st.session_state.game_time = get_current_time_pk()
@@ -399,7 +466,6 @@ with tab3:
         st.session_state.money_taken = 0
         st.session_state.edit_game_index = None
 
-    # Initialize session state for form fields if not exists
     if 'game_date' not in st.session_state:
         st.session_state.game_date = datetime.today().date()
     if 'game_time' not in st.session_state:
@@ -421,7 +487,6 @@ with tab3:
     if 'edit_game_index' not in st.session_state:
         st.session_state.edit_game_index = None
 
-    # If editing, load the row data
     if st.session_state.edit_game_index is not None:
         row = st.session_state.games_df.loc[st.session_state.edit_game_index]
         st.session_state.game_date = row['Date'].date()
@@ -434,7 +499,6 @@ with tab3:
         st.session_state.discount = int(row['Discount']) if pd.notna(row['Discount']) else 0
         st.session_state.money_taken = int(row['Money_Taken']) if pd.notna(row['Money_Taken']) else 0
 
-    # Dynamic price calculation
     def calculate_subtotal():
         if st.session_state.game_type == "Century":
             return st.session_state.minutes * 8
@@ -444,7 +508,6 @@ with tab3:
             multiplier = 2 if st.session_state.game_type == "Double" else 1
             return base * multiplier
 
-    # Form for adding/editing
     with st.form("game_form"):
         if st.session_state.edit_game_index is not None:
             st.subheader(f"✏️ Edit Game (ID {st.session_state.edit_game_index})")
@@ -513,7 +576,6 @@ with tab3:
             reset_game_form()
             st.rerun()
 
-    # Existing games list – use a scrollable dataframe
     st.divider()
     st.subheader("Existing Games")
 
@@ -522,11 +584,9 @@ with tab3:
     else:
         display_games = st.session_state.games_df.copy()
         display_games['Date'] = display_games['Date'].dt.strftime('%Y-%m-%d')
-        # Keep all columns, but we'll show them in a scrollable table
         st.dataframe(display_games[['Date', 'Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
                      use_container_width=True, height=400)
 
-        # Provide edit/delete via expanders
         for i, row in display_games.iterrows():
             with st.expander(f"📅 {row['Date']} {row['Time']} – {row['Game']} – T{row['Table']} – {row['Player']} – {row['Money_Taken']} PKR"):
                 col1, col2 = st.columns(2)
@@ -543,7 +603,6 @@ with tab3:
                         st.success("Game deleted.")
                         st.rerun()
 
-    # Today's summary
     st.divider()
     st.subheader("Today's Summary")
 
@@ -561,18 +620,19 @@ with tab3:
             hide_index=True
         )
 
-        # Breakdown by table
         st.subheader("Breakdown by Table (Today)")
         table_totals = today_games.groupby('Table')['Money_Taken'].sum().reset_index()
         fig_table = px.bar(table_totals, x='Table', y='Money_Taken',
                            title="Money Taken per Table (Today)",
                            labels={'Money_Taken': 'PKR'})
-        fig_table.update_layout(margin=dict(l=20, r=20, t=40, b=20))
+        fig_table.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                                plot_bgcolor='rgba(0,0,0,0)',
+                                paper_bgcolor='rgba(0,0,0,0)',
+                                font=dict(color='#1e293b'))
         st.plotly_chart(fig_table, use_container_width=True)
     else:
         st.info("No games recorded for today yet.")
 
-    # View other days
     with st.expander("View games from another day"):
         selected_date = st.date_input("Select date to view", value=today)
         selected_games = st.session_state.games_df[

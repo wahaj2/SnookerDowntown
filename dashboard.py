@@ -11,41 +11,98 @@ st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
 st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
-# Custom CSS for better mobile responsiveness
 st.markdown("""
 <style>
-/* Adjust main container padding on small screens */
+
+/* -------- Global Theme -------- */
+html, body, [class*="css"]  {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Background Gradient */
+.stApp {
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: #e2e8f0;
+}
+
+/* Main container */
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* -------- Titles -------- */
+h1, h2, h3 {
+    color: #f8fafc;
+    font-weight: 600;
+}
+
+/* -------- Cards (metrics & sections) -------- */
+[data-testid="stMetric"] {
+    background: rgba(15, 23, 42, 0.7);
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* -------- Buttons -------- */
+.stButton button {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: white;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 18px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.stButton button:hover {
+    background: linear-gradient(135deg, #15803d, #16a34a);
+    transform: translateY(-1px);
+}
+
+/* -------- Inputs -------- */
+.stTextInput input, .stNumberInput input, .stDateInput input {
+    background-color: #020617;
+    color: #e2e8f0;
+    border-radius: 8px;
+    border: 1px solid #1e293b;
+}
+
+/* -------- Dataframes -------- */
+[data-testid="stDataFrame"] {
+    background-color: #020617;
+    border-radius: 10px;
+    border: 1px solid #1e293b;
+}
+
+/* -------- Tabs -------- */
+.stTabs [role="tab"] {
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #22c55e;
+    border-bottom: 2px solid #22c55e;
+}
+
+/* -------- Expanders -------- */
+.streamlit-expanderHeader {
+    font-size: 15px;
+    font-weight: 500;
+    color: #e2e8f0;
+}
+
+/* -------- Mobile Improvements -------- */
 @media (max-width: 768px) {
-    .main .block-container {
+    .block-container {
         padding-left: 1rem;
         padding-right: 1rem;
     }
-    /* Make metric cards stack vertically */
-    .stMetric {
-        margin-bottom: 1rem;
-    }
-    /* Increase touch target for buttons */
-    .stButton button {
-        min-width: 44px;
-        min-height: 44px;
-    }
-    /* Reduce font size for tables */
-    .dataframe {
-        font-size: 12px;
-    }
-    /* Hide some columns on mobile? Optional */
-    /* For games list, we keep all columns but they'll scroll horizontally */
 }
-/* Ensure columns wrap on small screens */
-@media (max-width: 768px) {
-    .row-widget.stHorizontalBlock {
-        flex-wrap: wrap !important;
-    }
-    .row-widget.stHorizontalBlock > div {
-        min-width: 100% !important;
-        margin-bottom: 0.5rem;
-    }
-}
+
 </style>
 """, unsafe_allow_html=True)
 

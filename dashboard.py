@@ -8,7 +8,14 @@ from supabase import create_client
 # ------------------------------
 # Page configuration
 st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
-st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
+st.markdown("""
+<h1 style='text-align: center; font-weight: 700;'>
+🎱 Snooker Downtown Dashboard
+</h1>
+<p style='text-align: center; color: #94a3b8;'>
+Modern Sales & Game Tracking System
+</p>
+""", unsafe_allow_html=True)
 
 # ------------------------------
 st.markdown("""
@@ -352,7 +359,12 @@ with tab2:
                      labels={'Sale': 'Sale (PKR)', 'Date_str': 'Date'},
                      text='Sale')
         fig.update_traces(texttemplate='%{text:.0f}', textposition='outside')
-        fig.update_layout(margin=dict(l=20, r=20, t=40, b=20))
+        fig.update_layout(
+    template="plotly_dark",
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    font=dict(color="#e2e8f0"),
+))
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Not enough data to show last 7 days.")

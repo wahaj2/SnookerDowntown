@@ -193,6 +193,44 @@ st.markdown("""
         font-size: 2rem;
     }
     
+    /* FIX: Selectbox, date input, number input text visibility */
+    .stSelectbox div, .stDateInput div, .stNumberInput div, .stTextInput div, .stTimeInput div {
+        background-color: #0a192f;
+        color: #e6f1ff;
+    }
+    .stSelectbox input, .stDateInput input, .stNumberInput input, .stTextInput input, .stTimeInput input {
+        background-color: #0a192f;
+        color: #e6f1ff !important;
+    }
+    /* Dropdown menu (options) */
+    div[data-baseweb="select"] > div {
+        background-color: #112240;
+    }
+    div[data-baseweb="select"] ul {
+        background-color: #112240;
+    }
+    div[data-baseweb="select"] li {
+        color: #e6f1ff !important;
+        background-color: #112240;
+    }
+    div[data-baseweb="select"] li:hover {
+        background-color: #1a345a;
+    }
+    /* For date picker popup */
+    .stDateInput [data-baseweb="calendar"] {
+        background-color: #112240;
+        color: #e6f1ff;
+    }
+    .stDateInput [data-baseweb="calendar"] div {
+        color: #e6f1ff;
+    }
+    .stDateInput [data-baseweb="calendar"] button {
+        color: #e6f1ff;
+    }
+    .stDateInput [data-baseweb="calendar"] button:hover {
+        background-color: #1a345a;
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .main .block-container {

@@ -7,144 +7,207 @@ from supabase import create_client
 
 # ------------------------------
 # Page configuration
-st.set_page_config(
-    page_title="Snooker Downtown",
-    page_icon="🎱",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
-
-st.title("🎱 Snooker Downtown Sales Dashboard")
+st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
+st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
-# Modern Light Theme CSS
+# Custom CSS for dark blue professional theme
 st.markdown("""
 <style>
-    /* Light modern background */
-    .stApp {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    }
-
-    /* Main container */
+    /* Global styles */
     .main {
-        background-color: transparent;
+        background-color: #0a192f;
     }
-
-    /* Glass-like cards with soft shadows */
-    .stMetric, .stForm, div[data-testid="stVerticalBlock"] > div > div {
-        background: rgba(255, 255, 255, 0.95) !important;
-        border: 1px solid rgba(148, 163, 184, 0.2) !important;
-        border-radius: 20px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        backdrop-filter: blur(12px);
+    
+    /* Override Streamlit's default background */
+    .stApp {
+        background-color: #0a192f;
     }
-
-    .stMetric:hover, .stForm:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+    
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 600;
+        color: #e6f1ff;
     }
-
-    /* Typography */
-    h1 {
-        font-size: 2.8rem !important;
-        font-weight: 700 !important;
-        color: #0f172a !important;
-        margin-bottom: 0.5rem !important;
+    
+    /* Metric cards */
+    .stMetric {
+        background-color: #112240;
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #1e3a5f;
     }
-    h2, h3 {
-        color: #1e2937 !important;
-        font-weight: 600 !important;
+    .stMetric:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
     }
-
-    /* Metrics */
     .stMetric label {
-        color: #64748b !important;
-        font-size: 0.85rem !important;
+        font-size: 0.875rem;
         font-weight: 500;
-        letter-spacing: 0.5px;
+        color: #8892b0;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
     }
     .stMetric .stMetricValue {
-        font-size: 2.35rem !important;
-        font-weight: 700 !important;
-        color: #14b8a6 !important;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #64ffda;
     }
-
-    /* Buttons - Modern teal */
-    .stButton > button {
-        background: linear-gradient(90deg, #14b8a6, #0f766e) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 1.5rem !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 15px rgba(20, 184, 166, 0.25) !important;
-        transition: all 0.25s ease !important;
+    
+    /* Buttons */
+    .stButton button {
+        background-color: #1e6f5c;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: background-color 0.2s, transform 0.1s;
+        width: 100%;
     }
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(20, 184, 166, 0.35) !important;
-        background: linear-gradient(90deg, #0f766e, #14b8a6) !important;
+    .stButton button:hover {
+        background-color: #178b74;
+        border: none;
+        transform: scale(1.02);
     }
-
-    /* Inputs & Selects */
-    .stTextInput > div, .stNumberInput > div, .stDateInput > div, 
-    .stTimeInput > div, .stSelectbox > div {
-        background: white !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 12px !important;
-        color: #0f172a !important;
+    .stButton button:active {
+        transform: scale(0.98);
     }
-    .stTextInput input, .stNumberInput input, .stSelectbox select {
-        color: #0f172a !important;
+    
+    /* Expander headers */
+    .streamlit-expanderHeader {
+        background-color: #112240;
+        border-radius: 12px;
+        border: 1px solid #1e3a5f;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        color: #e6f1ff;
+        margin-bottom: 0.5rem;
     }
-
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        background: white !important;
-        border-radius: 16px !important;
-        padding: 6px !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        gap: 6px;
+    .streamlit-expanderHeader:hover {
+        background-color: #1a2f4e;
     }
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 10px !important;
-        padding: 0.75rem 1.5rem !important;
-        font-weight: 500 !important;
-        color: #64748b !important;
-    }
-    .stTabs [aria-selected="true"] {
-        background: #14b8a6 !important;
-        color: white !important;
-        font-weight: 600 !important;
-    }
-
+    
     /* Dataframes */
     .dataframe {
-        background: white !important;
-        border-radius: 16px !important;
-        border: 1px solid #e2e8f0 !important;
+        font-size: 0.875rem;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background-color: #112240;
+        color: #e6f1ff;
+        border-radius: 12px;
+        overflow: hidden;
     }
     .dataframe th {
-        background: #f8fafc !important;
-        color: #0f766e !important;
+        background-color: #0a2a3b;
+        color: #64ffda;
         font-weight: 600;
+        padding: 0.75rem;
+        border-bottom: 2px solid #1e3a5f;
+    }
+    .dataframe td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid #1e3a5f;
+        color: #ccd6f6;
     }
     .dataframe tr:hover {
-        background: #f1f5f9 !important;
+        background-color: #1a2f4e;
     }
-
-    /* Expanders */
-    .streamlit-expanderHeader {
-        background: white !important;
-        border-radius: 14px !important;
-        border: 1px solid #e2e8f0 !important;
-        color: #1e2937 !important;
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
+        background-color: #112240;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        border: 1px solid #1e3a5f;
     }
-
-    /* Plotly charts background */
-    .js-plotly-plot .plotly .main-svg {
-        background: white !important;
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        color: #8892b0;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #1e6f5c;
+        color: #ffffff;
+    }
+    
+    /* Forms */
+    .stForm {
+        background-color: #112240;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        border: 1px solid #1e3a5f;
+        margin-bottom: 1.5rem;
+    }
+    .stForm [data-baseweb="input"], .stForm [data-baseweb="select"], .stForm [data-baseweb="textarea"] {
+        border-radius: 8px;
+        border: 1px solid #1e3a5f;
+        background-color: #0a192f;
+        color: #e6f1ff;
+    }
+    .stForm input, .stForm textarea, .stForm select {
+        background-color: #0a192f;
+        color: #e6f1ff;
+    }
+    
+    /* Dividers */
+    hr {
+        margin: 2rem 0;
+        border: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #1e3a5f, transparent);
+    }
+    
+    /* Info/Warning boxes */
+    .stAlert {
+        border-radius: 12px;
+        border-left-width: 4px;
+        background-color: #112240;
+        color: #e6f1ff;
+    }
+    .stAlert .stAlertContent {
+        color: #e6f1ff;
+    }
+    
+    /* Selectbox, date input, etc */
+    .stSelectbox, .stDateInput, .stNumberInput, .stTextInput, .stTimeInput {
+        background-color: #0a192f;
+        color: #e6f1ff;
+    }
+    .stSelectbox div, .stDateInput div, .stNumberInput div, .stTextInput div, .stTimeInput div {
+        background-color: #0a192f;
+        color: #e6f1ff;
+    }
+    
+    /* Metric container adjustments */
+    div[data-testid="stMetricValue"] {
+        color: #64ffda;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main .block-container {
+            padding: 1rem;
+        }
+        .stMetric {
+            margin-bottom: 1rem;
+        }
+        .stTabs [data-baseweb="tab-list"] {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .stButton button {
+            min-width: 44px;
+            min-height: 44px;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -156,13 +219,13 @@ SUPABASE_KEY = "sb_publishable_l0RY0KvpyLUmcj2x2HHTTQ_O8bSbik0"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ------------------------------
-# Helper: get current time in Karachi
+# Helper: get current time in Islamabad
 def get_current_time_pk():
     tz = pytz.timezone('Asia/Karachi')
     return datetime.now(tz).time()
 
 # ------------------------------
-# Sales functions (unchanged logic)
+# Sales functions
 def load_sales():
     response = supabase.table("sales").select("*").order("date", desc=False).execute()
     data = response.data
@@ -203,19 +266,28 @@ def week_over_week_change(df):
     return ((last_7 - prev_7) / prev_7) * 100
 
 # ------------------------------
-# Games functions (unchanged)
+# Games functions
 def load_games():
     response = supabase.table("games").select("*").order("date", desc=False).execute()
     data = response.data
     if not data:
-        return pd.DataFrame(columns=['id', 'date', 'time', 'game', 'table', 'balls', 'minutes',
-                                     'player', 'subtotal', 'discount', 'total', 'money_taken'])
+        return pd.DataFrame(columns=[
+            'id', 'date', 'time', 'game', 'table', 'balls', 'minutes',
+            'player', 'subtotal', 'discount', 'total', 'money_taken'
+        ])
     df = pd.DataFrame(data)
     df.rename(columns={
-        "date": "Date", "time": "Time", "game": "Game", "table": "Table",
-        "balls": "Balls", "minutes": "Minutes", "player": "Player",
-        "subtotal": "Subtotal", "discount": "Discount",
-        "total": "Total", "money_taken": "Money_Taken"
+        "date": "Date",
+        "time": "Time",
+        "game": "Game",
+        "table": "Table",
+        "balls": "Balls",
+        "minutes": "Minutes",
+        "player": "Player",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "total": "Total",
+        "money_taken": "Money_Taken"
     }, inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
     return df
@@ -241,7 +313,7 @@ def save_games(df):
         supabase.table("games").insert(rec).execute()
 
 # ------------------------------
-# Load data into session state
+# Load initial data into session state
 if 'df' not in st.session_state:
     st.session_state.df = load_sales()
     st.session_state.df = recompute_day_numbers(st.session_state.df)
@@ -255,7 +327,8 @@ if 'games_df' not in st.session_state:
 if 'edit_game_index' not in st.session_state:
     st.session_state.edit_game_index = None
 
-# Game pricing
+# ------------------------------
+# Game type pricing
 PRICES = {"Single": 100, "Double": 150, "Century": 200}
 
 # ------------------------------
@@ -269,26 +342,27 @@ with tab1:
 
     if st.session_state.edit_row_index is not None:
         row = st.session_state.df.loc[st.session_state.edit_row_index]
-        default_date = row['Date'].date()
+        default_date = row['Date']
         default_sale = row['Sale']
-        form_title = f"✏️ Edit Sale – {default_date}"
+        form_title = f"✏️ Edit Sale for {default_date.strftime('%Y-%m-%d')}"
     else:
         default_date = datetime.today().date()
         default_sale = 0
-        form_title = "➕ Add New Sale"
+        form_title = "➕ Add Today's Sale"
 
     with st.form(key="sale_form", clear_on_submit=True):
         st.subheader(form_title)
+
         col1, col2 = st.columns(2)
         with col1:
             sale_date = st.date_input("Date", value=default_date)
         with col2:
-            sale_amount = st.number_input("Sale Amount (PKR)", min_value=0, value=int(default_sale), step=500)
+            sale_amount = st.number_input("Sale (PKR)", min_value=0, value=int(default_sale), step=100)
 
         temp_date = pd.to_datetime(sale_date)
-        st.info(f"**Day:** {temp_date.day_name()}   |   **Day No:** Auto-assigned")
+        st.markdown(f"**Day:** {temp_date.day_name()} &nbsp;&nbsp; **Day No:** will be auto‑assigned")
 
-        submitted = st.form_submit_button("💾 Save Sale", use_container_width=True)
+        submitted = st.form_submit_button("Save Sale")
 
         if submitted:
             new_row = pd.DataFrame({
@@ -299,17 +373,17 @@ with tab1:
             if st.session_state.edit_row_index is not None:
                 st.session_state.df.loc[st.session_state.edit_row_index] = new_row.iloc[0]
                 st.session_state.edit_row_index = None
-                st.success("✅ Sale updated successfully!")
+                st.success("Sale updated!")
             else:
                 st.session_state.df = pd.concat([st.session_state.df, new_row], ignore_index=True)
-                st.success("✅ Sale added successfully!")
+                st.success("Sale added!")
 
             st.session_state.df = recompute_day_numbers(st.session_state.df)
             save_sales(st.session_state.df)
             st.rerun()
 
     st.divider()
-    st.subheader("All Sales Records")
+    st.subheader("Existing Sales Records")
 
     display_df = st.session_state.df.copy()
     display_df['Date'] = display_df['Date'].dt.strftime('%Y-%m-%d')
@@ -339,30 +413,34 @@ with tab2:
 
     df_perf = st.session_state.df.copy()
     if df_perf.empty:
-        st.warning("No sales data available yet.")
+        st.warning("No data available.")
         st.stop()
 
+    df_perf['Date'] = pd.to_datetime(df_perf['Date'])
     df_perf = df_perf.sort_values('Date').reset_index(drop=True)
 
     wow_change = week_over_week_change(df_perf)
+
     total_sales = df_perf['Sale'].sum()
     avg_daily = df_perf['Sale'].mean()
-    last_7_sum = df_perf.tail(7)['Sale'].sum() if len(df_perf) >= 7 else 0
+    last_7_sum = df_perf.tail(7)['Sale'].sum() if len(df_perf) >= 7 else None
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("Total Sales", f"{total_sales:,.0f} PKR")
     with col2:
-        st.metric("Average Daily Sale", f"{avg_daily:,.0f} PKR")
+        st.metric("Avg Daily Sale", f"{avg_daily:,.0f} PKR")
     with col3:
-        st.metric("Last 7 Days", f"{last_7_sum:,.0f} PKR")
+        if last_7_sum is not None:
+            st.metric("Last 7 Days", f"{last_7_sum:,.0f} PKR")
+        else:
+            st.metric("Last 7 Days", "N/A")
     with col4:
         if wow_change is not None:
-            st.metric("Week-over-Week", f"{wow_change:+.1f}%")
+            st.metric("Week/Week Change", f"{wow_change:+.1f}%")
         else:
-            st.metric("Week-over-Week", "Need 14+ days")
+            st.metric("Week/Week Change", "Need ≥14 days")
 
-    # Charts remain the same (they adapt well to light theme)
     st.subheader("Last 7 Days Sales")
     if len(df_perf) >= 7:
         last_week_df = df_perf.tail(7).copy()
@@ -371,37 +449,53 @@ with tab2:
                      title="Daily Sales (Last 7 Days)",
                      labels={'Sale': 'Sale (PKR)', 'Date_str': 'Date'},
                      text='Sale')
-        fig.update_traces(texttemplate='%{text:.0f}', textposition='outside', marker_color='#14b8a6')
+        fig.update_traces(texttemplate='%{text:.0f}', textposition='outside',
+                          marker_color='#64ffda')
+        fig.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                          plot_bgcolor='rgba(17,34,64,0.5)',
+                          paper_bgcolor='rgba(17,34,64,0.5)',
+                          font=dict(color='#e6f1ff'),
+                          title_font_color='#e6f1ff')
         st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Not enough data to show last 7 days.")
 
-    st.subheader("Sales Trend Over Time")
+    st.subheader("Daily Sales Trend (All Data)")
     fig2 = px.line(df_perf, x='Date', y='Sale', markers=True,
                    title="Sales Over Time",
                    labels={'Sale': 'Sale (PKR)', 'Date': 'Date'})
     df_perf['MA7'] = df_perf['Sale'].rolling(7, min_periods=1).mean()
     fig2.add_scatter(x=df_perf['Date'], y=df_perf['MA7'], mode='lines',
-                     name='7-day Moving Average', line=dict(dash='dash', color='#0ea5e9'))
-    fig2.update_traces(marker_color='#14b8a6', line_color='#14b8a6')
+                     name='7-day moving avg', line=dict(dash='dash', color='#ffb86b'))
+    fig2.update_traces(marker_color='#64ffda', line_color='#64ffda')
+    fig2.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                       plot_bgcolor='rgba(17,34,64,0.5)',
+                       paper_bgcolor='rgba(17,34,64,0.5)',
+                       font=dict(color='#e6f1ff'),
+                       title_font_color='#e6f1ff')
     st.plotly_chart(fig2, use_container_width=True)
 
     st.subheader("Average Sales by Day of Week")
     dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     df_perf['Days'] = pd.Categorical(df_perf['Days'], categories=dow_order, ordered=True)
     dow_sales = df_perf.groupby('Days', observed=True)['Sale'].mean().reset_index()
-    fig3 = px.bar(dow_sales, x='Days', y='Sale', title="Average Sales by Weekday")
-    fig3.update_traces(marker_color='#14b8a6')
+    fig3 = px.bar(dow_sales, x='Days', y='Sale', title="Average Daily Sales by Weekday",
+                  labels={'Sale': 'Avg Sale (PKR)'})
+    fig3.update_traces(marker_color='#64ffda')
+    fig3.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                       plot_bgcolor='rgba(17,34,64,0.5)',
+                       paper_bgcolor='rgba(17,34,64,0.5)',
+                       font=dict(color='#e6f1ff'),
+                       title_font_color='#e6f1ff')
     st.plotly_chart(fig3, use_container_width=True)
 
-    with st.expander("View Raw Data"):
+    with st.expander("Show raw data"):
         st.dataframe(df_perf, use_container_width=True)
 
 # ------------------------------
 # Tab 3: Games Played
 with tab3:
-    st.header("Games Played – Table Recording")
-
-    # (Your existing game form and logic – only CSS changed for light theme)
-    # Keep all the game functions, session state, calculate_subtotal, etc. exactly as in your original code
+    st.header("Games Played – Per‑Table Recording")
 
     def reset_game_form():
         st.session_state.game_date = datetime.today().date()
@@ -415,31 +509,35 @@ with tab3:
         st.session_state.money_taken = 0
         st.session_state.edit_game_index = None
 
-    # Initialize session state variables (unchanged)
-    for key, value in {
-        'game_date': datetime.today().date(),
-        'game_time': get_current_time_pk(),
-        'game_type': "Single",
-        'table_num': 1,
-        'balls': 1,
-        'minutes': 60,
-        'player_name': "",
-        'discount': 0,
-        'money_taken': 0,
-        'edit_game_index': None
-    }.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
+    if 'game_date' not in st.session_state:
+        st.session_state.game_date = datetime.today().date()
+    if 'game_time' not in st.session_state:
+        st.session_state.game_time = get_current_time_pk()
+    if 'game_type' not in st.session_state:
+        st.session_state.game_type = "Single"
+    if 'table_num' not in st.session_state:
+        st.session_state.table_num = 1
+    if 'balls' not in st.session_state:
+        st.session_state.balls = 1
+    if 'minutes' not in st.session_state:
+        st.session_state.minutes = 60
+    if 'player_name' not in st.session_state:
+        st.session_state.player_name = ""
+    if 'discount' not in st.session_state:
+        st.session_state.discount = 0
+    if 'money_taken' not in st.session_state:
+        st.session_state.money_taken = 0
+    if 'edit_game_index' not in st.session_state:
+        st.session_state.edit_game_index = None
 
-    # Edit mode handling (unchanged)
     if st.session_state.edit_game_index is not None:
         row = st.session_state.games_df.loc[st.session_state.edit_game_index]
         st.session_state.game_date = row['Date'].date()
         st.session_state.game_time = datetime.strptime(row['Time'], "%H:%M").time()
         st.session_state.game_type = row['Game']
         st.session_state.table_num = int(row['Table'])
-        st.session_state.balls = int(row['Balls']) if row['Game'] != "Century" else 1
-        st.session_state.minutes = int(row['Minutes']) if row['Game'] == "Century" else 60
+        st.session_state.balls = int(row['Balls'])
+        st.session_state.minutes = int(row['Minutes'])
         st.session_state.player_name = row.get('Player', '')
         st.session_state.discount = int(row['Discount']) if pd.notna(row['Discount']) else 0
         st.session_state.money_taken = int(row['Money_Taken']) if pd.notna(row['Money_Taken']) else 0
@@ -455,38 +553,43 @@ with tab3:
 
     with st.form("game_form"):
         if st.session_state.edit_game_index is not None:
-            st.subheader(f"✏️ Edit Game")
+            st.subheader(f"✏️ Edit Game (ID {st.session_state.edit_game_index})")
         else:
             st.subheader("➕ Add New Game")
 
         col1, col2 = st.columns(2)
+
         with col1:
             st.session_state.game_date = st.date_input("Date", value=st.session_state.game_date)
-            st.session_state.game_time = st.time_input("Time (PKT)", value=st.session_state.game_time)
+            st.session_state.game_time = st.time_input("Time (Islamabad PKT)", value=st.session_state.game_time)
             st.session_state.player_name = st.text_input("Player Name", value=st.session_state.player_name)
-            st.session_state.game_type = st.selectbox("Game Type", ["Single", "Double", "Century"],
-                                                      index=["Single", "Double", "Century"].index(st.session_state.game_type))
+
+            game_type_options = list(PRICES.keys())
+            st.session_state.game_type = st.selectbox("Game Type", game_type_options,
+                                                      index=game_type_options.index(st.session_state.game_type))
+
             st.session_state.table_num = st.selectbox("Table Number", [1, 2, 3],
                                                       index=st.session_state.table_num-1)
 
             if st.session_state.game_type == "Century":
                 st.session_state.minutes = st.number_input("Minutes Played", min_value=1,
-                                                           value=st.session_state.minutes, step=5)
+                                                           value=st.session_state.minutes, step=1)
             else:
-                st.session_state.balls = st.selectbox("Balls", [1, 6, 10, 15],
-                                                      index=[1,6,10,15].index(st.session_state.balls))
+                ball_options = [1, 6, 10, 15]
+                st.session_state.balls = st.selectbox("Balls", ball_options,
+                                                      index=ball_options.index(st.session_state.balls))
 
         with col2:
             subtotal = calculate_subtotal()
-            st.markdown(f"**Subtotal:** {subtotal:,} PKR")
+            st.markdown(f"**Subtotal:** {subtotal} PKR")
             st.session_state.discount = st.number_input("Discount (PKR)", min_value=0,
                                                         value=st.session_state.discount, step=10)
-            total_after = subtotal - st.session_state.discount
-            st.markdown(f"**Total after discount:** {total_after:,} PKR")
-            st.session_state.money_taken = st.number_input("Money Taken (PKR)",
-                                                           value=max(0, total_after), step=10)
+            total_after_discount = subtotal - st.session_state.discount
+            st.markdown(f"**Total after discount:** {total_after_discount} PKR")
+            st.session_state.money_taken = st.number_input("Money Taken (PKR)", min_value=0,
+                                                           value=max(0, total_after_discount), step=10)
 
-        submitted = st.form_submit_button("💾 Save Game", use_container_width=True)
+        submitted = st.form_submit_button("Save Game")
 
         if submitted:
             new_row = {
@@ -499,7 +602,7 @@ with tab3:
                 'Player': st.session_state.player_name,
                 'Subtotal': subtotal,
                 'Discount': st.session_state.discount,
-                'Total': total_after,
+                'Total': total_after_discount,
                 'Money_Taken': st.session_state.money_taken
             }
 
@@ -508,14 +611,14 @@ with tab3:
                 st.success("Game updated!")
                 st.session_state.edit_game_index = None
             else:
-                st.session_state.games_df = pd.concat([st.session_state.games_df, pd.DataFrame([new_row])], ignore_index=True)
+                new_df = pd.DataFrame([new_row])
+                st.session_state.games_df = pd.concat([st.session_state.games_df, new_df], ignore_index=True)
                 st.success("Game recorded!")
 
             save_games(st.session_state.games_df)
             reset_game_form()
             st.rerun()
 
-    # Rest of Tab 3 (Existing Games, Today's Summary, etc.) – same as your original code
     st.divider()
     st.subheader("Existing Games")
 
@@ -528,7 +631,7 @@ with tab3:
                      use_container_width=True, height=400)
 
         for i, row in display_games.iterrows():
-            with st.expander(f"📅 {row['Date']} {row['Time']} – {row['Game']} – Table {row['Table']} – {row['Player']} – {row['Money_Taken']} PKR"):
+            with st.expander(f"📅 {row['Date']} {row['Time']} – {row['Game']} – T{row['Table']} – {row['Player']} – {row['Money_Taken']} PKR"):
                 col1, col2 = st.columns(2)
                 with col1:
                     if st.button("✏️ Edit", key=f"edit_game_{i}"):
@@ -538,29 +641,56 @@ with tab3:
                     if st.button("🗑️ Delete", key=f"del_game_{i}"):
                         st.session_state.games_df = st.session_state.games_df.drop(i).reset_index(drop=True)
                         save_games(st.session_state.games_df)
+                        if st.session_state.edit_game_index == i:
+                            st.session_state.edit_game_index = None
                         st.success("Game deleted.")
                         st.rerun()
 
-    # Today's Summary (unchanged logic)
     st.divider()
     st.subheader("Today's Summary")
+
     today = datetime.today().date()
-    today_games = st.session_state.games_df[st.session_state.games_df['Date'].dt.date == today] if not st.session_state.games_df.empty else pd.DataFrame()
+    today_games = st.session_state.games_df[
+        st.session_state.games_df['Date'].dt.date == today
+    ] if not st.session_state.games_df.empty else pd.DataFrame()
 
     if not today_games.empty:
         today_total = today_games['Money_Taken'].sum()
         st.metric("💰 Total Money Taken Today", f"{today_total:,.0f} PKR")
-        st.dataframe(today_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
-                     use_container_width=True, hide_index=True)
+        st.dataframe(
+            today_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.subheader("Breakdown by Table (Today)")
+        table_totals = today_games.groupby('Table')['Money_Taken'].sum().reset_index()
+        fig_table = px.bar(table_totals, x='Table', y='Money_Taken',
+                           title="Money Taken per Table (Today)",
+                           labels={'Money_Taken': 'PKR'})
+        fig_table.update_traces(marker_color='#64ffda')
+        fig_table.update_layout(margin=dict(l=20, r=20, t=40, b=20),
+                                plot_bgcolor='rgba(17,34,64,0.5)',
+                                paper_bgcolor='rgba(17,34,64,0.5)',
+                                font=dict(color='#e6f1ff'),
+                                title_font_color='#e6f1ff')
+        st.plotly_chart(fig_table, use_container_width=True)
     else:
         st.info("No games recorded for today yet.")
 
-    with st.expander("View Games from Another Day"):
-        selected_date = st.date_input("Select date", value=today)
-        selected_games = st.session_state.games_df[st.session_state.games_df['Date'].dt.date == selected_date] if not st.session_state.games_df.empty else pd.DataFrame()
+    with st.expander("View games from another day"):
+        selected_date = st.date_input("Select date to view", value=today)
+        selected_games = st.session_state.games_df[
+            st.session_state.games_df['Date'].dt.date == selected_date
+        ] if not st.session_state.games_df.empty else pd.DataFrame()
+
         if not selected_games.empty:
-            st.dataframe(selected_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
-                         use_container_width=True, hide_index=True)
-            st.metric(f"Total on {selected_date}", f"{selected_games['Money_Taken'].sum():,.0f} PKR")
+            st.dataframe(
+                selected_games[['Time', 'Game', 'Table', 'Balls', 'Minutes', 'Player', 'Money_Taken']],
+                use_container_width=True,
+                hide_index=True
+            )
+            st.metric(f"Total money taken on {selected_date.strftime('%Y-%m-%d')}",
+                      f"{selected_games['Money_Taken'].sum():,.0f} PKR")
         else:
-            st.info("No games on selected date.")
+            st.info("No games recorded for that date.")

@@ -11,7 +11,7 @@ st.set_page_config(page_title="Snooker Club Sales Dashboard", layout="wide")
 st.title("🎱 Snooker Downtown Sales Dashboard (PKR)")
 
 # ------------------------------
-# Custom CSS for dark blue professional theme
+# Custom CSS for a clean, high-contrast dark theme
 st.markdown("""
 <style>
     /* Global styles */
@@ -24,53 +24,61 @@ st.markdown("""
         background-color: #0a192f;
     }
     
+    /* Base text for better visibility */
+    body, .stMarkdown, p, div, span, label {
+        color: #f0f6ff !important;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+    
     /* Headers */
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         font-weight: 600;
-        color: #e6f1ff;
+        color: #ffffff !important;
+        letter-spacing: -0.01em;
     }
     
     /* Metric cards */
     .stMetric {
         background-color: #112240;
-        border-radius: 16px;
-        padding: 1rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        border-radius: 20px;
+        padding: 1.2rem;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
         transition: transform 0.2s, box-shadow 0.2s;
-        border: 1px solid #1e3a5f;
+        border: 1px solid #2a4a6e;
+        margin-bottom: 0.5rem;
     }
     .stMetric:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.4);
     }
     .stMetric label {
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         font-weight: 500;
-        color: #8892b0;
+        color: #b8c7e7 !important;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.05em;
     }
     .stMetric .stMetricValue {
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 700;
-        color: #64ffda;
+        color: #4cffb9 !important;
     }
     
     /* Buttons */
     .stButton button {
-        background-color: #1e6f5c;
-        color: #ffffff;
+        background-color: #2c7a6e;
+        color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 0.5rem 1rem;
-        font-weight: 500;
+        font-weight: 600;
         transition: background-color 0.2s, transform 0.1s;
         width: 100%;
+        font-size: 0.9rem;
     }
     .stButton button:hover {
-        background-color: #178b74;
-        border: none;
+        background-color: #3a9e8c;
         transform: scale(1.02);
     }
     .stButton button:active {
@@ -80,42 +88,44 @@ st.markdown("""
     /* Expander headers */
     .streamlit-expanderHeader {
         background-color: #112240;
-        border-radius: 12px;
-        border: 1px solid #1e3a5f;
+        border-radius: 16px;
+        border: 1px solid #2a4a6e;
         padding: 0.75rem 1rem;
         font-weight: 500;
-        color: #e6f1ff;
+        color: white;
         margin-bottom: 0.5rem;
+        font-size: 0.9rem;
     }
     .streamlit-expanderHeader:hover {
-        background-color: #1a2f4e;
+        background-color: #1a345a;
     }
     
     /* Dataframes */
     .dataframe {
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         border-collapse: separate;
         border-spacing: 0;
         width: 100%;
         background-color: #112240;
-        color: #e6f1ff;
-        border-radius: 12px;
+        color: #f0f6ff;
+        border-radius: 16px;
         overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     .dataframe th {
-        background-color: #0a2a3b;
-        color: #64ffda;
+        background-color: #1a345a;
+        color: #4cffb9;
         font-weight: 600;
         padding: 0.75rem;
-        border-bottom: 2px solid #1e3a5f;
+        border-bottom: 2px solid #2a4a6e;
     }
     .dataframe td {
-        padding: 0.5rem 0.75rem;
+        padding: 0.6rem 0.75rem;
         border-bottom: 1px solid #1e3a5f;
-        color: #ccd6f6;
+        color: #e6f1ff;
     }
     .dataframe tr:hover {
-        background-color: #1a2f4e;
+        background-color: #1e3a5f;
     }
     
     /* Tabs */
@@ -123,39 +133,42 @@ st.markdown("""
         gap: 1rem;
         background-color: #112240;
         padding: 0.5rem 1rem;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        border: 1px solid #1e3a5f;
+        border-radius: 20px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        border: 1px solid #2a4a6e;
     }
     .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        padding: 0.6rem 1.2rem;
         font-weight: 500;
-        color: #8892b0;
+        color: #b8c7e7;
+        font-size: 1rem;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #1e6f5c;
-        color: #ffffff;
+        background-color: #2c7a6e;
+        color: white;
+        font-weight: 600;
     }
     
     /* Forms */
     .stForm {
         background-color: #112240;
-        border-radius: 20px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        border: 1px solid #1e3a5f;
+        border-radius: 24px;
+        padding: 1.8rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        border: 1px solid #2a4a6e;
         margin-bottom: 1.5rem;
-    }
-    .stForm [data-baseweb="input"], .stForm [data-baseweb="select"], .stForm [data-baseweb="textarea"] {
-        border-radius: 8px;
-        border: 1px solid #1e3a5f;
-        background-color: #0a192f;
-        color: #e6f1ff;
     }
     .stForm input, .stForm textarea, .stForm select {
         background-color: #0a192f;
-        color: #e6f1ff;
+        color: white;
+        border-radius: 10px;
+        border: 1px solid #2a4a6e;
+        padding: 0.5rem;
+    }
+    .stForm [data-baseweb="input"]:focus, .stForm [data-baseweb="select"]:focus {
+        border-color: #4cffb9;
+        box-shadow: 0 0 0 1px #4cffb9;
     }
     
     /* Dividers */
@@ -163,36 +176,24 @@ st.markdown("""
         margin: 2rem 0;
         border: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent, #1e3a5f, transparent);
+        background: linear-gradient(90deg, transparent, #4cffb9, transparent);
     }
     
-    /* Info/Warning boxes */
+    /* Alerts */
     .stAlert {
-        border-radius: 12px;
+        border-radius: 16px;
         border-left-width: 4px;
         background-color: #112240;
-        color: #e6f1ff;
-    }
-    .stAlert .stAlertContent {
-        color: #e6f1ff;
-    }
-    
-    /* Selectbox, date input, etc */
-    .stSelectbox, .stDateInput, .stNumberInput, .stTextInput, .stTimeInput {
-        background-color: #0a192f;
-        color: #e6f1ff;
-    }
-    .stSelectbox div, .stDateInput div, .stNumberInput div, .stTextInput div, .stTimeInput div {
-        background-color: #0a192f;
-        color: #e6f1ff;
+        color: #f0f6ff;
     }
     
     /* Metric container adjustments */
     div[data-testid="stMetricValue"] {
-        color: #64ffda;
+        color: #4cffb9;
+        font-size: 2rem;
     }
     
-    /* Responsive adjustments */
+    /* Responsive */
     @media (max-width: 768px) {
         .main .block-container {
             padding: 1rem;
@@ -332,6 +333,21 @@ if 'edit_game_index' not in st.session_state:
 PRICES = {"Single": 100, "Double": 150, "Century": 200}
 
 # ------------------------------
+# Helper for consistent plot styling
+def apply_plot_style(fig, title=""):
+    fig.update_layout(
+        title=dict(text=title, font=dict(size=20, color='white'), x=0.05),
+        plot_bgcolor='rgba(17,34,64,0.8)',
+        paper_bgcolor='rgba(17,34,64,0.8)',
+        font=dict(color='#e6f1ff', size=12),
+        xaxis=dict(title_font=dict(size=14, color='white'), tickfont=dict(size=12, color='#e6f1ff'), gridcolor='rgba(100,255,218,0.2)'),
+        yaxis=dict(title_font=dict(size=14, color='white'), tickfont=dict(size=12, color='#e6f1ff'), gridcolor='rgba(100,255,218,0.2)'),
+        legend=dict(font=dict(size=12), bgcolor='rgba(0,0,0,0)'),
+        hoverlabel=dict(bgcolor="#112240", font_size=12, font_color="white")
+    )
+    return fig
+
+# ------------------------------
 # Tabs
 tab1, tab2, tab3 = st.tabs(["📝 Data Entry", "📈 Performance", "🎱 Games Played"])
 
@@ -450,12 +466,8 @@ with tab2:
                      labels={'Sale': 'Sale (PKR)', 'Date_str': 'Date'},
                      text='Sale')
         fig.update_traces(texttemplate='%{text:.0f}', textposition='outside',
-                          marker_color='#64ffda')
-        fig.update_layout(margin=dict(l=20, r=20, t=40, b=20),
-                          plot_bgcolor='rgba(17,34,64,0.5)',
-                          paper_bgcolor='rgba(17,34,64,0.5)',
-                          font=dict(color='#e6f1ff'),
-                          title_font_color='#e6f1ff')
+                          marker_color='#4cffb9', textfont=dict(size=12, color='white'))
+        fig = apply_plot_style(fig, "Last 7 Days Sales")
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Not enough data to show last 7 days.")
@@ -466,13 +478,9 @@ with tab2:
                    labels={'Sale': 'Sale (PKR)', 'Date': 'Date'})
     df_perf['MA7'] = df_perf['Sale'].rolling(7, min_periods=1).mean()
     fig2.add_scatter(x=df_perf['Date'], y=df_perf['MA7'], mode='lines',
-                     name='7-day moving avg', line=dict(dash='dash', color='#ffb86b'))
-    fig2.update_traces(marker_color='#64ffda', line_color='#64ffda')
-    fig2.update_layout(margin=dict(l=20, r=20, t=40, b=20),
-                       plot_bgcolor='rgba(17,34,64,0.5)',
-                       paper_bgcolor='rgba(17,34,64,0.5)',
-                       font=dict(color='#e6f1ff'),
-                       title_font_color='#e6f1ff')
+                     name='7-day moving avg', line=dict(dash='dash', color='#ffb86b', width=2))
+    fig2.update_traces(marker=dict(size=6, color='#4cffb9'), line=dict(color='#4cffb9', width=2))
+    fig2 = apply_plot_style(fig2, "Sales Over Time")
     st.plotly_chart(fig2, use_container_width=True)
 
     st.subheader("Average Sales by Day of Week")
@@ -481,12 +489,8 @@ with tab2:
     dow_sales = df_perf.groupby('Days', observed=True)['Sale'].mean().reset_index()
     fig3 = px.bar(dow_sales, x='Days', y='Sale', title="Average Daily Sales by Weekday",
                   labels={'Sale': 'Avg Sale (PKR)'})
-    fig3.update_traces(marker_color='#64ffda')
-    fig3.update_layout(margin=dict(l=20, r=20, t=40, b=20),
-                       plot_bgcolor='rgba(17,34,64,0.5)',
-                       paper_bgcolor='rgba(17,34,64,0.5)',
-                       font=dict(color='#e6f1ff'),
-                       title_font_color='#e6f1ff')
+    fig3.update_traces(marker_color='#4cffb9')
+    fig3 = apply_plot_style(fig3, "Average Sales by Day of Week")
     st.plotly_chart(fig3, use_container_width=True)
 
     with st.expander("Show raw data"):
@@ -668,12 +672,8 @@ with tab3:
         fig_table = px.bar(table_totals, x='Table', y='Money_Taken',
                            title="Money Taken per Table (Today)",
                            labels={'Money_Taken': 'PKR'})
-        fig_table.update_traces(marker_color='#64ffda')
-        fig_table.update_layout(margin=dict(l=20, r=20, t=40, b=20),
-                                plot_bgcolor='rgba(17,34,64,0.5)',
-                                paper_bgcolor='rgba(17,34,64,0.5)',
-                                font=dict(color='#e6f1ff'),
-                                title_font_color='#e6f1ff')
+        fig_table.update_traces(marker_color='#4cffb9')
+        fig_table = apply_plot_style(fig_table, "Money Taken per Table (Today)")
         st.plotly_chart(fig_table, use_container_width=True)
     else:
         st.info("No games recorded for today yet.")
